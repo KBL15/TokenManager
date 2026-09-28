@@ -1,0 +1,54 @@
+[package]
+name = "tokenmoniter"
+version = "0.1.0"
+description = "千问/百炼 Token Plan 用量监控桌面小工具"
+authors = ["tokenmoniter"]
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+# 库名固定为 tokenmoniter_lib，供 main.rs 调用；移动端也需要这个 crate-type
+name = "tokenmoniter_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri-plugin-autostart = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-opener = "2"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4"] }
+dirs = "6"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }
+
+# HTTP 用 native-tls（Windows 走系统 SChannel），避免打包整套 TLS 栈
+reqwest = { version = "0.12", default-features = false, features = [
+    "json",
+    "native-tls",
+    "gzip",
+] }
+
+# 阿里云签名。官方没有 Rust SDK，这四件套自己拼，依赖树很浅
+hmac = "0.12"
+sha1 = "0.10"
+sha2 = "0.10"
+base64 = "0.22"
+
+# 凭据存 Windows 凭据管理器。4.x 默认 feature 已含 Windows 后端
+keyring = { version = "4", default-features = false, features = ["v1"] }
+
+[features]
+# 由 tauri-build 使用
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

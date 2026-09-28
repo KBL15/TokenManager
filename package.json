@@ -1,0 +1,20 @@
+{
+  "name": "tokenmoniter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "千问/百炼 Token Plan 用量监控桌面小工具",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.0"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.12.0",
+    "@tauri-apps/plugin-autostart": "^2",
+    "@tauri-apps/plugin-notification": "^2",
+    "@tauri-apps/plugin-opener": "^2"
+  }
+}

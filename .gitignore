@@ -1,0 +1,32 @@
+# ───────── Rust 构建产物 ─────────
+# 这是仓库膨胀的元凶：debug + release 两套构建可以有 6-7 GB，
+# 而且里面的文件名带哈希、每次构建都变，提交进去纯属噪音。
+/src-tauri/target/
+
+# tauri-build 生成的 JSON schema，每次构建重新生成
+/src-tauri/gen/schemas/
+
+# ───────── Node ─────────
+/node_modules/
+/dist/
+
+# ───────── 打包产物 ─────────
+*.exe
+*.msi
+*.app
+
+# ───────── 编辑器 / 系统 ─────────
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ───────── 本地配置与凭据（绝不能提交）─────────
+# 应用自己的配置在 %APPDATA%，不在仓库里；
+# 这几条是防止以后有人把测试用的凭据放进来。
+.env
+.env.*
+*.local

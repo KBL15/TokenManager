@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>TokenMonitor</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="card" id="card">
+      <!-- 整条头部都是拖动区（data-tauri-drag-region） -->
+      <div class="card-head" data-tauri-drag-region>
+        <span class="card-title" id="title" data-tauri-drag-region>TokenMonitor</span>
+        <button class="icon-btn" id="btn-refresh" title="立即刷新">⟳</button>
+        <button class="icon-btn" id="btn-settings" title="设置">⚙</button>
+      </div>
+
+      <div class="error-bar" id="error-bar">
+        <span>⚠</span>
+        <span class="msg" id="error-msg"></span>
+      </div>
+
+      <div id="body"></div>
+
+      <div class="meta">
+        <span id="reset"></span>
+        <span id="updated"></span>
+      </div>
+    </div>
+
+    <div class="ctx-menu" id="ctx-menu">
+      <div class="ctx-item" data-act="refresh">立即刷新</div>
+      <div class="ctx-item" data-act="lock" id="ctx-lock">锁定位置</div>
+      <div class="ctx-item" data-act="settings">设置…</div>
+      <div class="ctx-sep"></div>
+      <div class="ctx-item" data-act="hide">隐藏卡片</div>
+      <div class="ctx-item" data-act="quit">退出</div>
+    </div>
+
+    <script src="card.js"></script>
+  </body>
+</html>

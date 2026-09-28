@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>TokenMonitor 设置</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="settings">
+    <div class="wrap">
+      <h1>TokenMonitor 设置</h1>
+      <div class="sub">
+        监控千问/百炼 Token Plan 的额度用量。<b>凭据存在 Windows 凭据管理器里</b>，
+        不会写进配置文件。
+        <span id="store-warn" class="pill off" style="display: none">凭据管理器不可用</span>
+      </div>
+
+      <!-- 数据源模式 -->
+      <section>
+        <h2>数据源</h2>
+        <div class="radio-row" id="mode-row">
+          <div class="radio-card" data-mode="auto">
+            <div class="t">自动</div>
+            <div class="d">先试 AccessKey 接口，失败回退 Cookie。不确定选哪个就选它。</div>
+          </div>
+          <div class="radio-card" data-mode="cookie">
+            <div class="t">Cookie 网关</div>
+            <div class="d">Token Plan <b>个人版</b>走这条。需要从浏览器复制 Cookie。</div>
+          </div>
+          <div class="radio-card" data-mode="accessKey">
+            <div class="t">AccessKey 接口</div>
+            <div class="d">官方 OpenAPI，<b>团队版</b>适用。需要 RAM 用户的 AccessKey。</div>
+          </div>
+          <div class="radio-card" data-mode="generic">
+            <div class="t">自定义接口</div>
+            <div class="d">接任意 HTTP 接口，自己指定字段位置。接口改版时用。</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cookie -->
+      <section id="sec-cookie">
+        <h2>Cookie 网关（个人版）<span class="pill" id="pill-cookie">未配置</span></h2>
+
+        <div class="field">
+          <label>粘贴 cURL（推荐）</label>
+          <textarea
+            id="curl-input"
+            placeholder="在浏览器 F12 → Network 里找到 tokenplan/personal/api/v2/usage 这条请求，右键 Copy as cURL，整段粘到这里，会自动填好下面的 Cookie。"
+          ></textarea>
+          <div class="hint">
+            不用手动抄 Cookie。cURL 里包含的 Cookie、请求头会被自动解析出来。
+          </div>
+          <div style="margin-top: 8px">
+            <button class="btn" id="btn-parse-curl">解析并填入</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Cookie</label>
+          <textarea id="cookie-input" placeholder="整行复制，不要只挑字段"></textarea>
+          <div class="hint">
+            抓取方法：打开百炼控制台「订阅套餐」页 → F12 → Network → 筛选
+            <code>tokenplan/personal/api/v2/usage</code> → 复制<b>这条请求</b>的整行
+            <code>Cookie</code>。注意不能用页面导航请求的 Cookie。
+          </div>
+        </div>
+
+        <div class="field">
+          <label>网关地址</label>
+          <select id="cookie-preset">
+            <option value="bailian_cn">百炼 · 中国大陆（bailian-cs.console.aliyun.com）</option>
+            <option value="bailian_intl">百炼 · 国际站（bailian-singapore-cs.alibabacloud.com）</option>
+            <option value="qianwen">千问AI平台（cs-data.qianwenai.com）</option>
+          </select>
+          <div class="hint">
+            数据网关的域名和页面域名<b>不是同一个</b>——这是「抄错 Cookie 导致登录失效」的头号原因。
+          </div>
+        </div>
+      </section>
+
+      <!-- AccessKey -->
+      <section id="sec-ak">
+        <h2>AccessKey 接口（团队版）<span class="pill" id="pill-ak">未配置</span></h2>
+        <div class="field">
+          <label>AccessKey ID</label>
+          <input type="text" id="ak-id" placeholder="LTAI..." />
+        </div>
+        <div class="field">
+          <label>AccessKey Secret</label>
+          <input type="password" id="ak-secret" placeholder="留空表示不修改已保存的值" />
+        </div>
+        <div class="hint">
+          需要 RAM 用户具备 <code>AliyunTokenPlanReadOnlyAccess</code> 策略。
+          这组接口返回的是<b>席位制</b>额度，个人版账号调用会失败。
+        </div>
+      </section>
+
+      <!-- 自定义接口 -->
+      <section id="sec-generic">
+        <h2>自定义接口</h2>
+        <div class="row">
+          <div class="field" style="flex: 0 0 96px">
+            <label>方法</label>
+            <select id="g-method">
+              <option>GET</option>
+              <option>POST</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>接口地址</label>
+            <input type="text" id="g-url" placeholder="https://..." />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>认证方式</label>
+          <select id="g-auth">
+            <option value="none">无需凭据</option>
+            <option value="bearer">Authorization: Bearer</option>
+            <option value="apiKeyHeader">x-api-key</option>
+            <option value="cookie">Cookie</option>
+            <option value="customHeader">自定义请求头</option>
+            <option value="queryParam">URL 查询参数</option>
+          </select>
+        </div>
+
+        <div class="field" id="g-auth-extra" style="display: none">
+          <label id="g-auth-extra-label">名称</label>
+          <input type="text" id="g-auth-name" placeholder="如 x-csrf-token" />
+        </div>
+
+        <div class="field">
+          <label>凭据</label>
+          <input type="password" id="g-cred" placeholder="留空表示不修改已保存的值" />
+        </div>
+
+        <div class="field">
+          <label>附加请求头（每行 <code>名称: 值</code>）</label>
+          <textarea id="g-headers" placeholder="x-requested-with: XMLHttpRequest"></textarea>
+        </div>
+
+        <div class="field">
+          <label>额度字段路径</label>
+          <div class="row">
+            <div>
+              <input type="text" id="g-pct" placeholder="剩余百分比，如 data.remain_percent" />
+            </div>
+            <div>
+              <input type="text" id="g-used" placeholder="已用量，如 data.used" />
+            </div>
+          </div>
+          <div class="row" style="margin-top: 8px">
+            <div>
+              <input type="text" id="g-total" placeholder="总额度，如 data.total" />
+            </div>
+            <div>
+              <input type="text" id="g-reset" placeholder="重置时间，如 data.reset_time" />
+            </div>
+          </div>
+          <div class="hint">
+            路径写法：<code>a.b[0].c</code>。接口返回的是 0–1 小数时，把下面的倍率填 <code>100</code>。
+          </div>
+        </div>
+
+        <div class="field" style="max-width: 160px">
+          <label>取值倍率</label>
+          <input type="number" id="g-scale" step="any" value="1" />
+        </div>
+      </section>
+
+      <!-- 刷新与提醒 -->
+      <section>
+        <h2>刷新与提醒</h2>
+        <div class="row">
+          <div class="field">
+            <label>刷新间隔（秒）</label>
+            <input type="number" id="interval" min="15" max="3600" />
+          </div>
+          <div class="field">
+            <label>额度不足提醒阈值（%）</label>
+            <input type="number" id="threshold" min="1" max="100" />
+          </div>
+        </div>
+
+        <label class="switch">
+          <input type="checkbox" id="tray-pct" />
+          <span>托盘图标上画出百分比数字</span>
+        </label>
+
+        <label class="switch">
+          <input type="checkbox" id="autostart" />
+          <span>开机自动启动</span>
+        </label>
+      </section>
+
+      <div class="actions">
+        <button class="btn primary" id="btn-save">保存并刷新</button>
+        <button class="btn" id="btn-refresh">立即刷新</button>
+        <button class="btn" id="btn-clear-cookie">清除 Cookie</button>
+        <span class="status" id="status"></span>
+      </div>
+
+      <div class="hint" style="margin-top: 14px">
+        数据源说明：Token Plan 个人版的用量<b>没有公开 API</b>，只能通过控制台网关读取，
+        因此需要浏览器 Cookie；Cookie 会过期，届时重新粘贴一次即可
+        （卡片上会明确提示）。团队版可改用 AccessKey 接口，不会过期。
+      </div>
+    </div>
+
+    <script src="settings.js"></script>
+  </body>
+</html>
